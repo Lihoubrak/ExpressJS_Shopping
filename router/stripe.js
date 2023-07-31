@@ -5,7 +5,9 @@ const Cart = require("../model/Cart");
 const OrderProduct = require("../model/OrderProduct");
 const { verifyToken } = require("./verifyToken");
 const router = express.Router();
-const stripe = require("stripe")(process.env.STRIPESECRETKEY);
+const stripe = require("stripe")(
+  "sk_test_51MsVL5FC5YM2xOXYYLRCwi8nWA85GbGJCtfzVe7k25dNrHpkB4AKsS9Wx5PaUOndwxX4GenTXo3906Wo7JCWjj2w00lBzUVp0S"
+);
 
 // Handle POST request for creating a checkout session
 // router.post("/checkout", async (req, res) => {
