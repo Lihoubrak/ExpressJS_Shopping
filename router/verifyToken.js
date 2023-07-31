@@ -19,7 +19,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
-const verifyTokenAndAuthorization =  (req, res, next) => {
+const verifyTokenAndAuthorization = (req, res, next) => {
   verifyToken(req, res, async () => {
     if (
       (req.user && parseInt(req.user.id) === parseInt(req.params.id)) ||
