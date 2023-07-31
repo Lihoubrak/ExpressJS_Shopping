@@ -7,5 +7,5 @@
     }
   ],
 
-  "routes": [{ "src": "/api/products", "dest": "/" }]
+  "routes": [{ "src": "/api", "dest": "/products" }]
 }
