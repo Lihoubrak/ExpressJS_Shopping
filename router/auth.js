@@ -21,7 +21,7 @@ router.post("/register", async (req, res) => {
     // Create a new user with hashed password
     const hashedPassword = CryptoJS.AES.encrypt(
       password,
-      process.env.PW_RS
+      process.env.PWRS
     ).toString();
     const newUser = await User.create({
       username,
