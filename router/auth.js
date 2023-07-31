@@ -46,7 +46,7 @@ router.post("/login", async (req, res) => {
     }
     const hashedPassword = CryptoJS.AES.decrypt(
       user.password,
-      process.env.PW_RS
+      process.env.PWRS
     );
     const originalPassword = hashedPassword.toString(CryptoJS.enc.Utf8);
     if (originalPassword !== req.body.password) {
@@ -59,7 +59,7 @@ router.post("/login", async (req, res) => {
         isAdmin: user.isAdmin,
         username: user.username,
       },
-      process.env.SC_TOKEN,
+      process.env.SCTOKEN,
       { expiresIn: "3d" }
     );
     const { password, ...other } = user.toJSON();
