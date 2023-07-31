@@ -1,13 +1,15 @@
 const { DataTypes, Sequelize } = require("sequelize");
+
 const sequelize = new Sequelize(
   process.env.DBNAME,
   process.env.DBUSER,
   process.env.DBPASSWORD,
   {
-    host: localhost,
-    dialect: mysql,
+    host: "localhost", // Corrected: Add quotes around localhost
+    dialect: "mysql", // Corrected: Add quotes around mysql
   }
 );
+
 sequelize
   .authenticate()
   .then(() => {
