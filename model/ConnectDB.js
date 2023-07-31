@@ -5,8 +5,8 @@ const sequelize = new Sequelize(
   process.env.DBUSER,
   process.env.DBPASSWORD,
   {
-    host: "localhost", // Corrected: Add quotes around localhost
-    dialect: "mysql", // Corrected: Add quotes around mysql
+    // host: "localhost", 
+    dialect: "mysql",
   }
 );
 
