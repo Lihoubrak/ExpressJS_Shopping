@@ -3,6 +3,7 @@ const User = require("../model/User");
 const CryptoJS = require("crypto-js");
 const { Op } = require("sequelize");
 const jwt = require("jsonwebtoken");
+require("dotenv").config();
 //REGISTER
 router.post("/register", async (req, res) => {
   const { username, email, password, avatar } = req.body;
