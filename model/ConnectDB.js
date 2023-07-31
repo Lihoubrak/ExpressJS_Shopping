@@ -6,7 +6,7 @@ const sequelize = new Sequelize(
   process.env.DBPASSWORD,
   {
     host: process.env.DB_HOST, // Use the environment variable for the database host
-    dialect: "mysql",
+    dialect: process.env.DB_TYPE,
   }
 );
 
