@@ -2,13 +2,13 @@ const Cart = require("../model/Cart");
 const OrderProduct = require("../model/OrderProduct");
 const ProductVariant = require("../model/ProductVariant");
 const User = require("../model/User");
-const { verifyToken } = require("./verifyToken");
+const { verifyTokenAndAuthorization } = require("./verifyToken");
 const sequelize = require("../model/ConnectDB");
 const OrderModel = require("../model/Order");
 const Product = require("../model/Product");
 const router = require("express").Router();
 
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyTokenAndAuthorization, async (req, res) => {
   try {
     const userid = req.user.id;
     const { userInfo } = req.body;

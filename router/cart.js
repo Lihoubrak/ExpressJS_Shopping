@@ -2,9 +2,9 @@ const Cart = require("../model/Cart");
 const Product = require("../model/Product");
 const ProductVariant = require("../model/ProductVariant");
 const User = require("../model/User");
-const { verifyToken } = require("./verifyToken");
+const { verifyTokenAndAuthorization } = require("./verifyTokenAndAuthorization");
 const router = require("express").Router();
-router.post("/:productId", verifyToken, async (req, res) => {
+router.post("/:productId", verifyTokenAndAuthorization, async (req, res) => {
   try {
     const productId = req.params.productId;
     const userId = req.user.id;
@@ -59,7 +59,7 @@ router.post("/:productId", verifyToken, async (req, res) => {
   }
 });
 
-router.get("/find", verifyToken, async (req, res) => {
+router.get("/find", verifyTokenAndAuthorization, async (req, res) => {
   try {
     const userId = req.user.id;
     const carts = await Cart.findAll({
@@ -91,48 +91,56 @@ router.get("/find", verifyToken, async (req, res) => {
   }
 });
 
-router.put("/:productVariantId", verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const productVariantId = req.params.productVariantId; // Get the product variant ID from the request parameters
-    const cartItem = await Cart.findOne({
-      where: { ProductVariantId: productVariantId, UserId: userId },
-    }); // Find the cart item by the product variant ID
+router.put(
+  "/:productVariantId",
+  verifyTokenAndAuthorization,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const productVariantId = req.params.productVariantId; // Get the product variant ID from the request parameters
+      const cartItem = await Cart.findOne({
+        where: { ProductVariantId: productVariantId, UserId: userId },
+      }); // Find the cart item by the product variant ID
 
-    if (cartItem) {
-      // If the cart item exists, update it
-      const updatedCartItem = await cartItem.update({
-        quantity: req.body.quantity,
-      }); // Update the cart item quantity based on the request body
+      if (cartItem) {
+        // If the cart item exists, update it
+        const updatedCartItem = await cartItem.update({
+          quantity: req.body.quantity,
+        }); // Update the cart item quantity based on the request body
 
-      res.status(200).json("Update Successfully"); // Send a success response with the updated cart item
-    } else {
-      // If the cart item does not exist, send an error response
-      res.status(404).json({ message: "Cart item not found" });
+        res.status(200).json("Update Successfully"); // Send a success response with the updated cart item
+      } else {
+        // If the cart item does not exist, send an error response
+        res.status(404).json({ message: "Cart item not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message }); // Handle any errors
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message }); // Handle any errors
   }
-});
-router.delete("/:productVariantId", verifyToken, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const productVariantId = req.params.productVariantId; // Get the product variant ID from the request parameters
-    const cartItem = await Cart.findOne({
-      where: { ProductVariantId: productVariantId, UserId: userId },
-    }); // Find the cart item by the product variant ID
+);
+router.delete(
+  "/:productVariantId",
+  verifyTokenAndAuthorization,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const productVariantId = req.params.productVariantId; // Get the product variant ID from the request parameters
+      const cartItem = await Cart.findOne({
+        where: { ProductVariantId: productVariantId, UserId: userId },
+      }); // Find the cart item by the product variant ID
 
-    if (cartItem) {
-      // If the cart item exists, update it
-      const updatedCartItem = await cartItem.destroy(); // Update the cart item quantity based on the request body
-      res.status(200).json("Delete Successfully"); // Send a success response with the updated cart item
-    } else {
-      // If the cart item does not exist, send an error response
-      res.status(404).json({ message: "Cart item not found" });
+      if (cartItem) {
+        // If the cart item exists, update it
+        const updatedCartItem = await cartItem.destroy(); // Update the cart item quantity based on the request body
+        res.status(200).json("Delete Successfully"); // Send a success response with the updated cart item
+      } else {
+        // If the cart item does not exist, send an error response
+        res.status(404).json({ message: "Cart item not found" });
+      }
+    } catch (error) {
+      res.status(500).json({ message: error.message }); // Handle any errors
     }
-  } catch (error) {
-    res.status(500).json({ message: error.message }); // Handle any errors
   }
-});
+);
 
 module.exports = router;
