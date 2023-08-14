@@ -4,8 +4,8 @@ const ProductVariant = require("../model/ProductVariant");
 const User = require("../model/User");
 const { verifyTokenAndAuthorization } = require("./verifyToken");
 const sequelize = require("../model/ConnectDB");
-const OrderModel = require("../model/Order");
 const Product = require("../model/Product");
+const Order = require("../model/Order");
 const router = require("express").Router();
 
 router.post("/", verifyTokenAndAuthorization, async (req, res) => {
@@ -13,14 +13,16 @@ router.post("/", verifyTokenAndAuthorization, async (req, res) => {
     const userid = req.user.id;
     const { userInfo } = req.body;
     const cartItems = await Cart.findAll({
-      where: { userId: userid },
+      where: { UserId: userid },
     });
-    const order = await OrderModel.create({
+
+    const order = await Order.create({
       UserId: userid,
       email: userInfo.email,
       address: `${userInfo.address} ${userInfo.city} ${userInfo.country}`,
       phone: userInfo.phone,
       payment: "cash on delivery",
+      status: "Pending", // Set initial status to Pending
     });
 
     for (const cartItem of cartItems) {
@@ -29,17 +31,9 @@ router.post("/", verifyTokenAndAuthorization, async (req, res) => {
         ProductVariantId: cartItem.ProductVariantId,
         quantity: cartItem.quantity,
       });
-
-      const productVariant = await ProductVariant.findByPk(
-        cartItem.productVariantId
-      );
-      if (productVariant) {
-        const updatedQuantity = productVariant.quantity - cartItem.quantity;
-        await productVariant.update({ quantity: updatedQuantity });
-      }
     }
 
-    await Cart.destroy({ where: { userId: userid } });
+    await Cart.destroy({ where: { UserId: userid } });
 
     return res
       .status(200)
@@ -52,7 +46,7 @@ router.post("/", verifyTokenAndAuthorization, async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const orders = await OrderModel.findAll({
+    const orders = await Order.findAll({
       include: [
         {
           model: User,
@@ -99,7 +93,7 @@ router.delete("/:orderId", async (req, res) => {
   const { ProductVariantId } = req.body;
   const orderId = req.params.orderId;
   try {
-    const order = await OrderModel.findOne({ where: { id: orderId } });
+    const order = await Order.findOne({ where: { id: orderId } });
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
@@ -127,11 +121,53 @@ router.delete("/:orderId", async (req, res) => {
 router.put("/:orderId", async (req, res) => {
   const orderId = req.params.orderId;
   try {
-    const order = await OrderModel.findOne({ where: { id: orderId } });
+    const order = await Order.findOne({ where: { id: orderId } });
+
     if (!order) {
       return res.status(404).json({ error: "Order not found" });
     }
-    await order.update({ status: req.body.status });
+
+    const newStatus = req.body.status;
+    const oldStatus = order.status;
+
+    if (newStatus !== oldStatus) {
+      if (newStatus === "Approved") {
+        const orderProducts = await OrderProduct.findAll({
+          where: { OrderId: order.id },
+        });
+
+        for (const orderProduct of orderProducts) {
+          const productVariant = await ProductVariant.findByPk(
+            orderProduct.ProductVariantId
+          );
+
+          if (productVariant) {
+            const updatedQuantity =
+              productVariant.quantity - orderProduct.quantity;
+            await productVariant.update({ quantity: updatedQuantity });
+          }
+        }
+      } else if (oldStatus === "Approved" && newStatus !== "Approved") {
+        const orderProducts = await OrderProduct.findAll({
+          where: { OrderId: order.id },
+        });
+
+        for (const orderProduct of orderProducts) {
+          const productVariant = await ProductVariant.findByPk(
+            orderProduct.ProductVariantId
+          );
+
+          if (productVariant) {
+            const updatedQuantity =
+              productVariant.quantity + orderProduct.quantity;
+            await productVariant.update({ quantity: updatedQuantity });
+          }
+        }
+      }
+    }
+
+    await order.update({ status: newStatus });
+
     return res
       .status(200)
       .json({ message: "Order status updated successfully" });

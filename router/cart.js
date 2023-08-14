@@ -2,7 +2,7 @@ const Cart = require("../model/Cart");
 const Product = require("../model/Product");
 const ProductVariant = require("../model/ProductVariant");
 const User = require("../model/User");
-const { verifyTokenAndAuthorization } = require("./verifyTokenAndAuthorization");
+const { verifyTokenAndAuthorization } = require("./verifyToken");
 const router = require("express").Router();
 router.post("/:productId", verifyTokenAndAuthorization, async (req, res) => {
   try {
